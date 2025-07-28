@@ -1,5 +1,10 @@
-pipeline {
+ppipeline {
     agent any
+
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds') // Name of your Jenkins credentials ID
+        IMAGE_NAME = 'vallakki/flask-k3s-app:latest'
+    }
 
     stages {
         stage('Clone Repo') {
@@ -10,23 +15,27 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t vallakki/flask-k3s-app .'
+                script {
+                    sh 'docker build -t $IMAGE_NAME .'
+                }
             }
         }
 
         stage('Push to DockerHub') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                    sh 'echo $PASS | docker login -u $USER --password-stdin'
-                    sh 'docker push vallakki/flask-k3s-app'
+                script {
+                    sh "echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin"
+                    sh 'docker push $IMAGE_NAME'
                 }
             }
         }
 
         stage('Deploy to K3s') {
             steps {
-                sh 'kubectl apply -f k8s-deployment.yaml'
+                sh 'kubectl apply -f deployment.yaml'
+                sh 'kubectl rollout restart deployment flask-deployment'
             }
         }
     }
 }
+
