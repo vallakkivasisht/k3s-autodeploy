@@ -2,8 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('vallakki') // Your Jenkins credentials ID
-        IMAGE_NAME = 'vallakki/flask-k3s-app:latest'
+        IMAGE_NAME = 'flask-k3s-app:latest'
     }
 
     stages {
@@ -13,7 +12,7 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build Docker Image Locally') {
             steps {
                 script {
                     sh "docker build -t ${IMAGE_NAME} ."
@@ -21,19 +20,12 @@ pipeline {
             }
         }
 
-        stage('Push to DockerHub') {
+        stage('Deploy to K3s with Local Image') {
             steps {
                 script {
-                    sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
-                    sh "docker push ${IMAGE_NAME}"
+                    sh "kubectl apply -f deployment.yaml"
+                    sh "kubectl rollout restart deployment flask-deployment"
                 }
-            }
-        }
-
-        stage('Deploy to K3s') {
-            steps {
-                sh 'kubectl apply -f deployment.yaml'
-                sh 'kubectl rollout restart deployment flask-deployment'
             }
         }
     }
