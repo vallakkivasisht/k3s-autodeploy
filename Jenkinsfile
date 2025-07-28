@@ -12,15 +12,17 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image Locally') {
+        stage('Build Docker Image & Load to K3s') {
             steps {
                 script {
                     sh "docker build -t ${IMAGE_NAME} ."
+                    sh "docker save ${IMAGE_NAME} -o image.tar"
+                    sh "sudo k3s ctr images import image.tar"
                 }
             }
         }
 
-        stage('Deploy to K3s with Local Image') {
+        stage('Deploy to K3s') {
             steps {
                 script {
                     sh "kubectl apply -f deployment.yaml"
