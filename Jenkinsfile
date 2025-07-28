@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('vallakki') // Name of your Jenkins credentials ID
+        DOCKERHUB_CREDENTIALS = credentials('vallakki') // Your Jenkins credentials ID
         IMAGE_NAME = 'vallakki/flask-k3s-app:latest'
     }
 
@@ -16,7 +16,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh 'docker build -t $IMAGE_NAME .'
+                    sh "docker build -t ${IMAGE_NAME} ."
                 }
             }
         }
@@ -24,8 +24,8 @@ pipeline {
         stage('Push to DockerHub') {
             steps {
                 script {
-                    sh "echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin"
-                    sh 'docker push $IMAGE_NAME'
+                    sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
+                    sh "docker push ${IMAGE_NAME}"
                 }
             }
         }
