@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds') // Name of your Jenkins credentials ID
+        DOCKERHUB_CREDENTIALS = credentials('vallakki') // Name of your Jenkins credentials ID
         IMAGE_NAME = 'vallakki/flask-k3s-app:latest'
     }
 
