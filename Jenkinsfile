@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        IMAGE_NAME = 'flask-k3s-app:latest'
-    }
-
     stages {
         stage('Clone Repo') {
             steps {
@@ -12,22 +8,21 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image & Load to K3s') {
+        stage('Build Docker Image') {
             steps {
-                script {
-                    sh "docker build -t ${IMAGE_NAME} ."
-                    sh "docker save ${IMAGE_NAME} -o image.tar"
-                    sh "sudo k3s ctr images import image.tar"
-                }
+                sh 'docker build -t my-k3s-app:latest .'
+            }
+        }
+
+        stage('Load Image to K3s') {
+            steps {
+                sh 'k3s ctr images import <(docker save my-k3s-app:latest)'
             }
         }
 
         stage('Deploy to K3s') {
             steps {
-                script {
-                    sh "kubectl apply -f deployment.yaml"
-                    sh "kubectl rollout restart deployment flask-deployment"
-                }
+                sh 'kubectl apply -f k8s-autodeployment.yaml'
             }
         }
     }
