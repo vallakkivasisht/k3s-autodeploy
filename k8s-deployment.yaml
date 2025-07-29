@@ -14,8 +14,8 @@ spec:
     spec:
       containers:
       - name: flask
-        image: flask-k3s-app:latest  # No Docker Hub prefix
-        imagePullPolicy: Never       # ⚠️ Critical to use local image
+        image: myapp:latest
+        imagePullPolicy: Never
         ports:
         - containerPort: 5000
 
